@@ -4,7 +4,8 @@
       "Bash(flutter create:*)",
       "Bash(where flutter)",
       "Bash(flutter:*)",
-      "Bash(dart scripts/verify_glb_models.dart:*)"
+      "Bash(dart scripts/verify_glb_models.dart:*)",
+      "Bash(dart analyze:*)"
     ],
     "deny": [],
     "ask": [],

@@ -16,12 +16,21 @@ class CardDisplayWidget extends ConsumerWidget {
     final viewMode = ref.watch(viewModeProvider);
     final currentCard = ref.watch(currentCardProvider);
     final isLoading = ref.watch(loadingProvider);
+    final screenSize = MediaQuery.of(context).size;
+    
+    // Calculate responsive dimensions
+    final availableHeight = screenSize.height - kToolbarHeight - 100; // Reserve space for navigation
+    final availableWidth = screenSize.width - 32; // Account for padding
+    
+    // Maintain aspect ratio while maximizing display area
+    final cardHeight = (availableHeight * 0.8).clamp(300.0, 600.0);
+    final cardWidth = (cardHeight * 0.7).clamp(200.0, availableWidth);
 
     return GestureDetector(
       onTap: () => ref.read(viewModeProvider.notifier).toggleMode(),
       child: Container(
-        height: 400,
-        width: 280,
+        height: cardHeight,
+        width: cardWidth,
         decoration: BoxDecoration(
           borderRadius: AppTheme.cardRadius,
           gradient: Theme.of(context).brightness == Brightness.light

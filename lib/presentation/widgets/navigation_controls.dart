@@ -16,7 +16,7 @@ class NavigationControls extends ConsumerWidget {
     final isShuffled = shuffledCards != null;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -29,69 +29,51 @@ class NavigationControls extends ConsumerWidget {
         ],
       ),
       child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Main navigation row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Previous button
-                _NavigationButton(
-                  onPressed: navigationController.previousCard,
-                  icon: Icons.chevron_left,
-                  label: 'Previous',
-                  backgroundColor: AppTheme.primaryColor,
-                ),
-
-                // Card counter
-                _CardCounter(
-                  currentIndex: currentIndex,
-                  isShuffled: isShuffled,
-                ),
-
-                // Next button
-                _NavigationButton(
-                  onPressed: navigationController.nextCard,
-                  icon: Icons.chevron_right,
-                  label: 'Next',
-                  backgroundColor: AppTheme.primaryColor,
-                ),
-              ],
+            // Previous button
+            _CompactNavigationButton(
+              onPressed: navigationController.previousCard,
+              icon: Icons.chevron_left,
+              backgroundColor: AppTheme.primaryColor,
             ),
-            
-            const SizedBox(height: 16),
-            
-            // Secondary controls row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Shuffle button
-                _SecondaryButton(
-                  onPressed: isShuffled 
-                      ? navigationController.resetShuffle
-                      : () => _showShuffleDialog(context, ref),
-                  icon: isShuffled ? Icons.restore : Icons.shuffle,
-                  label: isShuffled ? 'Reset' : 'Shuffle',
-                  backgroundColor: isShuffled ? Colors.orange : Colors.blue,
-                ),
 
-                // Quiz mode button
-                _SecondaryButton(
-                  onPressed: () => _startQuizMode(context, ref),
-                  icon: Icons.quiz,
-                  label: 'Quiz',
-                  backgroundColor: Colors.purple,
-                ),
+            // Shuffle button
+            _CompactNavigationButton(
+              onPressed: isShuffled 
+                  ? navigationController.resetShuffle
+                  : () => _showShuffleDialog(context, ref),
+              icon: isShuffled ? Icons.restore : Icons.shuffle,
+              backgroundColor: isShuffled ? Colors.orange : Colors.blue,
+            ),
 
-                // View toggle button
-                _SecondaryButton(
-                  onPressed: navigationController.toggleView,
-                  icon: _getViewModeIcon(ref),
-                  label: _getViewModeLabel(ref),
-                  backgroundColor: Colors.teal,
-                ),
-              ],
+            // Card counter
+            _CompactCardCounter(
+              currentIndex: currentIndex,
+              isShuffled: isShuffled,
+            ),
+
+            // View toggle button
+            _CompactNavigationButton(
+              onPressed: navigationController.toggleView,
+              icon: _getViewModeIcon(ref),
+              backgroundColor: Colors.teal,
+            ),
+
+            // Quiz mode button
+            _CompactNavigationButton(
+              onPressed: () => _startQuizMode(context, ref),
+              icon: Icons.quiz,
+              backgroundColor: Colors.purple,
+            ),
+
+            // Next button
+            _CompactNavigationButton(
+              onPressed: navigationController.nextCard,
+              icon: Icons.chevron_right,
+              backgroundColor: AppTheme.primaryColor,
             ),
           ],
         ),
@@ -175,174 +157,96 @@ class NavigationControls extends ConsumerWidget {
   }
 }
 
-class _NavigationButton extends StatelessWidget {
+class _CompactNavigationButton extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData icon;
-  final String label;
   final Color backgroundColor;
 
-  const _NavigationButton({
+  const _CompactNavigationButton({
     required this.onPressed,
     required this.icon,
-    required this.label,
     required this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Material(
-          elevation: 2,
-          borderRadius: BorderRadius.circular(28),
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(28),
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(28),
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SecondaryButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final IconData icon;
-  final String label;
-  final Color backgroundColor;
-
-  const _SecondaryButton({
-    required this.onPressed,
-    required this.icon,
-    required this.label,
-    required this.backgroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Material(
-          elevation: 1,
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            onTap: onPressed,
+    return Material(
+      elevation: 2,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: backgroundColor,
             borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
+          ),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 20,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _CardCounter extends StatelessWidget {
+
+class _CompactCardCounter extends StatelessWidget {
   final int currentIndex;
   final bool isShuffled;
 
-  const _CardCounter({
+  const _CompactCardCounter({
     required this.currentIndex,
     required this.isShuffled,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            border: Border.all(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: AppTheme.primaryColor,
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        color: Theme.of(context).cardColor,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${currentIndex + 1}/52',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
               color: AppTheme.primaryColor,
-              width: 2,
             ),
-            borderRadius: AppTheme.buttonRadius,
-            color: Theme.of(context).cardColor,
           ),
-          child: Column(
-            children: [
-              Text(
-                '${currentIndex + 1}/52',
-                style: const TextStyle(
-                  fontSize: 18,
+          if (isShuffled) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'S',
+                style: TextStyle(
+                  fontSize: 8,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryColor,
+                  color: Colors.white,
                 ),
               ),
-              if (isShuffled) ...[
-                const SizedBox(height: 2),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'SHUFFLED',
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          'Cards',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -157,23 +157,27 @@ class _MainScreenState extends ConsumerState<MainScreen>
             // Main content area
             Expanded(
               child: Center(
-                child: SingleChildScrollView(
+                child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Current card display
-                      Hero(
-                        tag: 'card_display_${currentCard.id}',
-                        child: const CardDisplayWidget(),
+                      // Current card display - takes most available space
+                      Flexible(
+                        flex: 4,
+                        child: Hero(
+                          tag: 'card_display_${currentCard.id}',
+                          child: const CardDisplayWidget(),
+                        ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 12),
 
-                      // Card information
-                      _buildCardInfo(currentCard),
-
-                      const SizedBox(height: 16),
+                      // Card information - compact version
+                      Flexible(
+                        flex: 1,
+                        child: _buildCompactCardInfo(currentCard),
+                      ),
                     ],
                   ),
                 ),
@@ -184,6 +188,49 @@ class _MainScreenState extends ConsumerState<MainScreen>
             const NavigationControls(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompactCardInfo(card) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: AppTheme.cardRadius,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildCompactInfoChip('Suit', card.suit.name),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                card.displayName,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                card.suit.symbol,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: AppTheme.getSuitColor(card.suit.code),
+                ),
+              ),
+            ],
+          ),
+          _buildCompactInfoChip('Value', card.rank.value.toString()),
+        ],
       ),
     );
   }
@@ -231,6 +278,40 @@ class _MainScreenState extends ConsumerState<MainScreen>
               _buildInfoChip('Rank', card.rank.name),
               _buildInfoChip('Value', card.rank.value.toString()),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactInfoChip(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.primaryColor.withOpacity(0.3),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 8,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.primaryColor,
+            ),
           ),
         ],
       ),
