@@ -26,6 +26,7 @@ class _CardImageViewerState extends State<CardImageViewer>
   bool _hasError = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  late TransformationController _transformationController;
 
   @override
   void initState() {
@@ -35,17 +36,19 @@ class _CardImageViewerState extends State<CardImageViewer>
       vsync: this,
     );
     _scaleAnimation = Tween<double>(
-      begin: 0.8,
+      begin: 1.0,
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutBack,
     ));
+    _transformationController = TransformationController();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _transformationController.dispose();
     super.dispose();
   }
 
@@ -70,28 +73,43 @@ class _CardImageViewerState extends State<CardImageViewer>
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.grey[100]!,
-            Colors.grey[50]!,
-          ],
+
+  void _resetZoom() {
+    _transformationController.value = Matrix4.identity();
+  }
+
+  Widget _buildZoomButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 20,
+          ),
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
       child: Stack(
         children: [
-          // Background pattern
-          _buildBackgroundPattern(),
-
-          // Main image
-          Center(
+          // Main image with pan/zoom - fill all available space
+          Positioned.fill(
             child: AnimatedBuilder(
               animation: _scaleAnimation,
               builder: (context, child) {
@@ -100,9 +118,57 @@ class _CardImageViewerState extends State<CardImageViewer>
                   child: child,
                 );
               },
-              child: _buildCardImage(),
+              child: InteractiveViewer(
+                transformationController: _transformationController,
+                boundaryMargin: EdgeInsets.zero,
+                minScale: 0.1,
+                maxScale: 4.0,
+                clipBehavior: Clip.none,
+                panEnabled: widget.enableInteraction,
+                scaleEnabled: widget.enableInteraction,
+                child: _buildCardImage(),
+              ),
             ),
           ),
+
+          // Zoom controls
+          if (widget.enableInteraction && _isLoaded && !_hasError)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildZoomButton(
+                      icon: Icons.zoom_in,
+                      onPressed: () {
+                        final currentScale = _transformationController.value.getMaxScaleOnAxis();
+                        final newScale = (currentScale * 1.5).clamp(0.1, 4.0);
+                        _transformationController.value = Matrix4.identity()..scale(newScale);
+                      },
+                    ),
+                    _buildZoomButton(
+                      icon: Icons.zoom_out,
+                      onPressed: () {
+                        final currentScale = _transformationController.value.getMaxScaleOnAxis();
+                        final newScale = (currentScale / 1.5).clamp(0.1, 4.0);
+                        _transformationController.value = Matrix4.identity()..scale(newScale);
+                      },
+                    ),
+                    _buildZoomButton(
+                      icon: Icons.center_focus_strong,
+                      onPressed: _resetZoom,
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // Loading indicator
           if (!_isLoaded && !_hasError)
@@ -179,38 +245,21 @@ class _CardImageViewerState extends State<CardImageViewer>
   }
 
   Widget _buildCardImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        constraints: const BoxConstraints(
-          maxWidth: 240,
-          maxHeight: 360,
-        ),
-        child: AspectRatio(
-          aspectRatio: 2.5 / 3.5, // Standard playing card ratio
-          child: Image.asset(
-            widget.card.imagePath,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              // Fallback to placeholder card
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _onImageError();
-              });
-              return _buildPlaceholderCard();
-            },
-            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-              if (wasSynchronouslyLoaded || frame != null) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _onImageLoaded();
-                });
-                return child;
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
-        ),
-      ),
+    return SizedBox.expand(child: _buildImageWithFallback());
+  }
+
+  Widget _buildImageWithFallback() {
+    final basePath = widget.card.imagePath.replaceAll('.png', '');
+    final possiblePaths = [
+      widget.card.imagePath, // Original PNG path
+      '$basePath.jpg',
+      '$basePath.jpeg',
+    ];
+
+    return _ImageWithFallback(
+      imagePaths: possiblePaths,
+      onImageLoaded: _onImageLoaded,
+      onAllImagesFailed: _onImageError,
     );
   }
 
@@ -261,39 +310,68 @@ class _CardImageViewerState extends State<CardImageViewer>
       ),
     );
   }
-
-  Widget _buildBackgroundPattern() {
-    return Positioned.fill(
-      child: CustomPaint(
-        painter: CardBackgroundPainter(
-          color: Colors.grey.withOpacity(0.05),
-        ),
-      ),
-    );
-  }
 }
 
-class CardBackgroundPainter extends CustomPainter {
-  final Color color;
 
-  CardBackgroundPainter({required this.color});
+class _ImageWithFallback extends StatefulWidget {
+  final List<String> imagePaths;
+  final VoidCallback onImageLoaded;
+  final VoidCallback onAllImagesFailed;
+
+  const _ImageWithFallback({
+    required this.imagePaths,
+    required this.onImageLoaded,
+    required this.onAllImagesFailed,
+  });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+  State<_ImageWithFallback> createState() => _ImageWithFallbackState();
+}
 
-    const spacing = 40.0;
-    const radius = 2.0;
+class _ImageWithFallbackState extends State<_ImageWithFallback> {
+  int _currentImageIndex = 0;
 
-    for (double x = 0; x < size.width + spacing; x += spacing) {
-      for (double y = 0; y < size.height + spacing; y += spacing) {
-        canvas.drawCircle(Offset(x, y), radius, paint);
-      }
+  @override
+  Widget build(BuildContext context) {
+    if (_currentImageIndex >= widget.imagePaths.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onAllImagesFailed();
+      });
+      return const SizedBox.shrink();
     }
-  }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+    return Image.asset(
+      widget.imagePaths[_currentImageIndex],
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (context, error, stackTrace) {
+        if (_currentImageIndex < widget.imagePaths.length - 1) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _currentImageIndex++;
+              });
+            }
+          });
+          return const SizedBox.shrink();
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onAllImagesFailed();
+          });
+          return const SizedBox.shrink();
+        }
+      },
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        if (wasSynchronouslyLoaded || frame != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onImageLoaded();
+          });
+          return child;
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
+    );
+  }
 }

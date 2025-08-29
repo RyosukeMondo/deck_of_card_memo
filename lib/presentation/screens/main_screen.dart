@@ -154,33 +154,26 @@ class _MainScreenState extends ConsumerState<MainScreen>
                 ),
               ),
 
-            // Main content area
+            // Main content area (no outer padding so the image can expand)
             Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Current card display - takes most available space
-                      Flexible(
-                        flex: 4,
-                        child: Hero(
-                          tag: 'card_display_${currentCard.id}',
-                          child: const CardDisplayWidget(),
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Card information - compact version
-                      Flexible(
-                        flex: 1,
-                        child: _buildCompactCardInfo(currentCard),
-                      ),
-                    ],
+              child: Column(
+                children: [
+                  // Current card display fills available space
+                  Expanded(
+                    child: Hero(
+                      tag: 'card_display_${currentCard.id}',
+                      child: const CardDisplayWidget(),
+                    ),
                   ),
-                ),
+
+                  const SizedBox(height: 12),
+
+                  // Card information - compact version with padding only around this section
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _buildCompactCardInfo(currentCard),
+                  ),
+                ],
               ),
             ),
 

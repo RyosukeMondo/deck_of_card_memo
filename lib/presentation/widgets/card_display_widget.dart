@@ -16,212 +16,188 @@ class CardDisplayWidget extends ConsumerWidget {
     final viewMode = ref.watch(viewModeProvider);
     final currentCard = ref.watch(currentCardProvider);
     final isLoading = ref.watch(loadingProvider);
-    final screenSize = MediaQuery.of(context).size;
-    
-    // Calculate responsive dimensions
-    final availableHeight = screenSize.height - kToolbarHeight - 100; // Reserve space for navigation
-    final availableWidth = screenSize.width - 32; // Account for padding
-    
-    // Maintain aspect ratio while maximizing display area
-    final cardHeight = (availableHeight * 0.8).clamp(300.0, 600.0);
-    final cardWidth = (cardHeight * 0.7).clamp(200.0, availableWidth);
 
-    return GestureDetector(
-      onTap: () => ref.read(viewModeProvider.notifier).toggleMode(),
-      child: Container(
-        height: cardHeight,
-        width: cardWidth,
-        decoration: BoxDecoration(
-          borderRadius: AppTheme.cardRadius,
-          gradient: Theme.of(context).brightness == Brightness.light
-              ? AppTheme.cardGradientLight
-              : AppTheme.cardGradientDark,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: AppTheme.cardRadius,
-          child: Stack(
-            children: [
-              // Main content
-              AnimatedSwitcher(
-                duration: AppTheme.normalAnimation,
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0.3, 0),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutCubic,
-                      )),
-                      child: child,
-                    ),
-                  );
-                },
-                child: Builder(
-                  builder: (context) {
-                    print('🃏 [CardDisplay] Building card view - Mode: $viewMode, Card: ${currentCard.id}');
-                    
-                    if (viewMode == ViewMode.image) {
-                      print('🃏 [CardDisplay] Creating CardImageViewer for ${currentCard.id}');
-                      return CardImageViewer(
-                        key: ValueKey('image_${currentCard.id}'),
-                        card: currentCard,
-                      );
-                    } else {
-                      print('🃏 [CardDisplay] Creating Card3DViewer for ${currentCard.id}');
-                      return Card3DViewer(
-                        key: ValueKey('3d_${currentCard.id}'),
-                        cardId: currentCard.id,
-                        onModelLoaded: () {
-                          print('🃏 [CardDisplay] 3D Model loaded callback for ${currentCard.id}');
-                        },
-                        onLoadError: () {
-                          print('🃏 [CardDisplay] 3D Model load error callback for ${currentCard.id}');
-                        },
-                      );
-                    }
-                  },
-                ),
-              ),
-              
-              // Loading overlay
-              if (isLoading)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
-                    borderRadius: AppTheme.cardRadius,
-                  ),
-                  child: const Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          strokeWidth: 3,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Loading...',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // View mode indicator
-              Positioned(
-                top: 12,
-                right: 12,
-                child: ViewModeIndicator(mode: viewMode),
-              ),
-
-              // Card info overlay
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7),
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        currentCard.displayName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Fill all available space; cropping is handled by the inner viewer if needed
+        return GestureDetector(
+          onTap: () => ref.read(viewModeProvider.notifier).toggleMode(),
+          child: SizedBox.expand(
+            child: Stack(
+              children: [
+                // Main content
+                AnimatedSwitcher(
+                  duration: AppTheme.normalAnimation,
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.3, 0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOutCubic,
+                        )),
+                        child: child,
                       ),
-                      const SizedBox(height: 4),
-                      Row(
+                    );
+                  },
+                  child: Builder(
+                    builder: (context) {
+                      print(
+                          '🃏 [CardDisplay] Building card view - Mode: $viewMode, Card: ${currentCard.id}');
+
+                      if (viewMode == ViewMode.image) {
+                        print(
+                            '🃏 [CardDisplay] Creating CardImageViewer for ${currentCard.id}');
+                        return CardImageViewer(
+                          key: ValueKey('image_${currentCard.id}'),
+                          card: currentCard,
+                        );
+                      } else {
+                        print(
+                            '🃏 [CardDisplay] Creating Card3DViewer for ${currentCard.id}');
+                        return Card3DViewer(
+                          key: ValueKey('3d_${currentCard.id}'),
+                          cardId: currentCard.id,
+                          onModelLoaded: () {
+                            print(
+                                '🃏 [CardDisplay] 3D Model loaded callback for ${currentCard.id}');
+                          },
+                          onLoadError: () {
+                            print(
+                                '🃏 [CardDisplay] 3D Model load error callback for ${currentCard.id}');
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ),
+
+                // Loading overlay
+                if (isLoading)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                    ),
+                    child: const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            currentCard.suit.symbol,
-                            style: TextStyle(
-                              color: AppTheme.getSuitColor(currentCard.suit.code),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            strokeWidth: 3,
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(height: 16),
                           Text(
-                            currentCard.rank.name,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
+                            'Loading...',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
 
-              // Tap hint (only show when not loading)
-              if (!isLoading)
+                // View mode indicator
                 Positioned(
                   top: 12,
-                  left: 12,
-                  child: AnimatedOpacity(
-                    opacity: 0.8,
-                    duration: AppTheme.normalAnimation,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
-                        borderRadius: AppTheme.smallRadius,
+                  right: 12,
+                  child: ViewModeIndicator(mode: viewMode),
+                ),
+
+                // Card info overlay
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
                       ),
-                      child: const Text(
-                        'Tap to switch',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          currentCard.displayName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              currentCard.suit.symbol,
+                              style: TextStyle(
+                                color: AppTheme.getSuitColor(
+                                    currentCard.suit.code),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              currentCard.rank.name,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Tap hint (only show when not loading)
+                if (!isLoading)
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: AnimatedOpacity(
+                      opacity: 0.8,
+                      duration: AppTheme.normalAnimation,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: AppTheme.smallRadius,
+                        ),
+                        child: const Text(
+                          'Tap to switch',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
