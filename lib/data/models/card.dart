@@ -52,7 +52,8 @@ class Card {
     this.isModelLoaded = false,
   });
 
-  String get displayName => '${rank.name} of ${suit.name}';
+  // Prefer the provided name (from CSV when available).
+  String get displayName => name;
 
   String get shortName => '${rank.code}${suit.code}';
 

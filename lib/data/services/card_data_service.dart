@@ -1,21 +1,23 @@
 import 'dart:math' show Random;
 import '../models/card.dart';
+import 'card_name_service.dart';
 
 class CardDataService {
-  static final List<Card> _allCards = _generateAllCards();
+  // Lazily initialized to ensure CSV names are loaded first (main.dart awaits load()).
+  static List<Card>? _allCards;
 
-  static List<Card> getAllCards() => List.unmodifiable(_allCards);
+  static List<Card> getAllCards() => List.unmodifiable(_cards);
 
   static Card getCardById(String id) {
     try {
-      return _allCards.firstWhere((card) => card.id == id);
+      return _cards.firstWhere((card) => card.id == id);
     } catch (e) {
       throw ArgumentError('Card with id "$id" not found');
     }
   }
 
   static int getCardIndex(String cardId) {
-    final index = _allCards.indexWhere((card) => card.id == cardId);
+    final index = _cards.indexWhere((card) => card.id == cardId);
     if (index == -1) {
       throw ArgumentError('Card with id "$cardId" not found');
     }
@@ -23,10 +25,10 @@ class CardDataService {
   }
 
   static String getCardIdByIndex(int index) {
-    if (index < 0 || index >= _allCards.length) {
+    if (index < 0 || index >= _cards.length) {
       throw ArgumentError('Index $index out of range');
     }
-    return _allCards[index].id;
+    return _cards[index].id;
   }
 
   static bool isHighPriorityCard(String cardId) {
@@ -39,15 +41,15 @@ class CardDataService {
   }
 
   static List<Card> getCardsBySuit(Suit suit) {
-    return _allCards.where((card) => card.suit == suit).toList();
+    return _cards.where((card) => card.suit == suit).toList();
   }
 
   static List<Card> getCardsByRank(Rank rank) {
-    return _allCards.where((card) => card.rank == rank).toList();
+    return _cards.where((card) => card.rank == rank).toList();
   }
 
   static List<Card> getShuffledCards({int? seed}) {
-    final cards = List<Card>.from(_allCards);
+    final cards = List<Card>.from(_cards);
     if (seed != null) {
       cards.shuffle(Random(seed));
     } else {
@@ -63,9 +65,11 @@ class CardDataService {
     for (final suit in Suit.values) {
       for (final rank in Rank.values) {
         final id = _generateCardId(suit, rank);
+        final csvName = CardNameService.instance.tryGet(id);
         final card = Card(
           id: id,
-          name: '${rank.name} of ${suit.name}',
+          // Use CSV-provided name if available, fallback to default English label
+          name: csvName ?? '${rank.name} of ${suit.name}',
           suit: suit,
           rank: rank,
           imagePath: 'assets/cards/images/$id.png',
@@ -83,6 +87,17 @@ class CardDataService {
     final suitCode = suit.code.toLowerCase();
     final rankCode = rank.code.toLowerCase();
     return '$suitCode$rankCode';
+  }
+
+  // Internal lazy getter to initialize cards on first access.
+  static List<Card> get _cards {
+    _allCards ??= _generateAllCards();
+    return _allCards!;
+  }
+
+  /// Rebuild the card list from the current CSV data.
+  static void refreshFromNames() {
+    _allCards = _generateAllCards();
   }
 
   /// Get popular cards for preloading (based on common card game usage)
@@ -108,7 +123,7 @@ class CardDataService {
     if (currentIndex > 0) {
       predictiveCards.add(getCardIdByIndex(currentIndex - 1));
     }
-    if (currentIndex < _allCards.length - 1) {
+    if (currentIndex < _cards.length - 1) {
       predictiveCards.add(getCardIdByIndex(currentIndex + 1));
     }
     
@@ -116,7 +131,7 @@ class CardDataService {
     if (currentIndex > 1) {
       predictiveCards.add(getCardIdByIndex(currentIndex - 2));
     }
-    if (currentIndex < _allCards.length - 2) {
+    if (currentIndex < _cards.length - 2) {
       predictiveCards.add(getCardIdByIndex(currentIndex + 2));
     }
     

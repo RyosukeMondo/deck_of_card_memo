@@ -4,6 +4,8 @@ import '../providers/card_providers.dart';
 import '../providers/app_providers.dart';
 import '../../data/models/app_state.dart';
 import '../../core/themes/app_theme.dart';
+import '../providers/quiz_providers.dart';
+import '../screens/quiz_screen.dart';
 
 class NavigationControls extends ConsumerWidget {
   const NavigationControls({super.key});
@@ -138,20 +140,15 @@ class NavigationControls extends ConsumerWidget {
   }
 
   void _startQuizMode(BuildContext context, WidgetRef ref) {
+    // Ensure clean quiz state
+    ref.read(quizStateProvider.notifier).resetQuiz();
+    // Update app mode
     ref.read(appStateProvider.notifier).setMode(AppMode.quiz);
-    // Navigate to quiz screen
-    // This would typically use go_router or Navigator
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.quiz, color: Colors.white),
-            SizedBox(width: 8),
-            Text('Quiz mode coming soon!'),
-          ],
-        ),
-        backgroundColor: AppTheme.primaryColor,
-        duration: Duration(seconds: 2),
+    // Navigate to QuizScreen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const QuizScreen(),
       ),
     );
   }

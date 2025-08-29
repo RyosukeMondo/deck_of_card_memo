@@ -60,40 +60,41 @@ class _Card3DViewerState extends ConsumerState<Card3DViewer> {
 
     try {
       // Check if model is available or load it
-      final isAvailable = await DeferredAssetLoader.ensureModelLoaded(widget.cardId);
-      
+      final isAvailable =
+          await DeferredAssetLoader.ensureModelLoaded(widget.cardId);
+
       if (isAvailable && mounted) {
         final modelPath = 'assets/cards/models/${widget.cardId}.glb';
         currentModelPath = modelPath;
-        
+
         // Additional validation: Check if asset can be loaded
         try {
           final assetBundle = DefaultAssetBundle.of(context);
           final byteData = await assetBundle.load(modelPath);
           final fileSize = byteData.lengthInBytes;
-          
+
           if (fileSize == 0) {
             throw Exception('GLB file is empty');
           }
-          
+
           // Check GLB header (first 4 bytes should be "glTF")
           final headerBytes = byteData.buffer.asUint8List(0, 4);
           final header = String.fromCharCodes(headerBytes);
-          
+
           if (header != 'glTF') {
             throw Exception('Invalid GLB file format (header: "$header")');
           }
         } catch (assetError) {
           throw assetError;
         }
-        
+
         setState(() {
           isLoading = false;
           isModelLoaded = true;
         });
-        
+
         widget.onModelLoaded?.call();
-        
+
         // Add a small delay to ensure the 3D viewer is rendered
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
@@ -123,15 +124,15 @@ class _Card3DViewerState extends ConsumerState<Card3DViewer> {
     if (isLoading) {
       return _buildLoadingIndicator();
     }
-    
+
     if (hasError) {
       return _buildErrorState();
     }
-    
+
     if (isModelLoaded && currentModelPath != null) {
       return _build3DViewer();
     }
-    
+
     return _buildLoadingIndicator();
   }
 
@@ -152,24 +153,6 @@ class _Card3DViewerState extends ConsumerState<Card3DViewer> {
       ),
       child: Stack(
         children: [
-          // Debug info overlay
-          Positioned(
-            top: 10,
-            left: 10,
-            child: Container(
-              padding: EdgeInsets.all(8),
-              color: Colors.black54,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('🎯 3D VIEWER DEBUG', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                  Text('Path: $currentModelPath', style: TextStyle(color: Colors.white, fontSize: 10)),
-                  Text('Platform: ${_getPlatformInfo()}', style: TextStyle(color: Colors.white, fontSize: 10)),
-                ],
-              ),
-            ),
-          ),
-          
           // The actual 3D viewer
           Builder(
             builder: (context) {
@@ -194,9 +177,11 @@ class _Card3DViewerState extends ConsumerState<Card3DViewer> {
                         SizedBox(height: 8),
                         Text('3D Viewer Error: $e'),
                         SizedBox(height: 8),
-                        Text('Path: $currentModelPath', style: TextStyle(fontSize: 12)),
+                        Text('Path: $currentModelPath',
+                            style: TextStyle(fontSize: 12)),
                         SizedBox(height: 8),
-                        Text('Platform: ${_getPlatformInfo()}', style: TextStyle(fontSize: 10)),
+                        Text('Platform: ${_getPlatformInfo()}',
+                            style: TextStyle(fontSize: 10)),
                       ],
                     ),
                   ),
@@ -204,7 +189,7 @@ class _Card3DViewerState extends ConsumerState<Card3DViewer> {
               }
             },
           ),
-          
+
           // Fallback test button
           Positioned(
             bottom: 10,
@@ -262,7 +247,8 @@ class _Card3DViewerState extends ConsumerState<Card3DViewer> {
             Text('Has Error: $hasError'),
             Text('Is Loading: $isLoading'),
             SizedBox(height: 16),
-            Text('Platform: $platform', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('Platform: $platform',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             if (platform == 'Android') ...[
               Text('- Uses WebView with ModelViewer'),
               Text('- Hardware acceleration enabled'),
@@ -275,7 +261,8 @@ class _Card3DViewerState extends ConsumerState<Card3DViewer> {
             ],
             Text('- GLB model format required'),
             SizedBox(height: 16),
-            Text('Troubleshooting:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('Troubleshooting:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             Text('1. Check Android Chrome DevTools'),
             Text('2. Verify GLB model integrity'),
             Text('3. Check WebView console logs'),

@@ -31,6 +31,7 @@ flutter:
   assets:
     - assets/cards/images/
     - assets/cards/models/
+    - assets/cards/names.csv
     - assets/ui/icons/
     - assets/ui/backgrounds/
 
