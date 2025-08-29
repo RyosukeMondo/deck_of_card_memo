@@ -128,41 +128,61 @@ class CardDisplayWidget extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          currentCard.displayName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                    child: Builder(
+                      builder: (context) {
+                        final suitColor = AppTheme.getSuitColor(currentCard.suit.code);
+                        // Light "zabuton" pad to ensure contrast on dark backgrounds
+                        final Color padColor = Colors.white.withOpacity(0.92);
+
+                        return Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: padColor,
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  currentCard.rank.code,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: suitColor,
+                                    fontSize: 44,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.5,
+                                    shadows: const [
+                                      Shadow(blurRadius: 0.5, color: Colors.black12, offset: Offset(0, 0.5)),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  currentCard.suit.symbol,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: suitColor.withOpacity(0.9),
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w800,
+                                    shadows: const [
+                                      Shadow(blurRadius: 0.5, color: Colors.black12, offset: Offset(0, 0.5)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              currentCard.suit.symbol,
-                              style: TextStyle(
-                                color: AppTheme.getSuitColor(
-                                    currentCard.suit.code),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              currentCard.rank.name,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
