@@ -1,11 +1,11 @@
-enum Suit { 
-  clubs('C', 'Clubs', '♣'), 
-  diamonds('D', 'Diamonds', '♦'), 
-  hearts('H', 'Hearts', '♥'), 
+enum Suit {
+  clubs('C', 'Clubs', '♣'),
+  diamonds('D', 'Diamonds', '♦'),
+  hearts('H', 'Hearts', '♥'),
   spades('S', 'Spades', '♠');
 
   const Suit(this.code, this.name, this.symbol);
-  
+
   final String code;
   final String name;
   final String symbol;
@@ -27,7 +27,7 @@ enum Rank {
   king(13, 'K', 'King');
 
   const Rank(this.value, this.code, this.name);
-  
+
   final int value;
   final String code;
   final String name;
@@ -53,7 +53,7 @@ class Card {
   });
 
   String get displayName => '${rank.name} of ${suit.name}';
-  
+
   String get shortName => '${rank.code}${suit.code}';
 
   Card copyWith({
@@ -79,9 +79,7 @@ class Card {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Card &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+      other is Card && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;

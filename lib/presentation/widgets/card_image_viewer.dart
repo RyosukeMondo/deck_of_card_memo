@@ -120,7 +120,7 @@ class _CardImageViewerState extends State<CardImageViewer>
               },
               child: InteractiveViewer(
                 transformationController: _transformationController,
-                boundaryMargin: EdgeInsets.zero,
+                boundaryMargin: const EdgeInsets.all(1000),
                 minScale: 0.1,
                 maxScale: 4.0,
                 clipBehavior: Clip.none,
@@ -342,7 +342,7 @@ class _ImageWithFallbackState extends State<_ImageWithFallback> {
 
     return Image.asset(
       widget.imagePaths[_currentImageIndex],
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
       width: double.infinity,
       height: double.infinity,
       errorBuilder: (context, error, stackTrace) {
