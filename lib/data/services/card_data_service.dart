@@ -1,3 +1,4 @@
+import 'dart:math' show Random;
 import '../models/card.dart';
 
 class CardDataService {
@@ -122,6 +123,3 @@ class CardDataService {
     return predictiveCards;
   }
 }
-
-// Import Random for shuffling
-import 'dart:math' show Random;

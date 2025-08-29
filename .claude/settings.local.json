@@ -3,7 +3,8 @@
     "allow": [
       "Bash(flutter create:*)",
       "Bash(where flutter)",
-      "Bash(flutter:*)"
+      "Bash(flutter:*)",
+      "Bash(dart scripts/verify_glb_models.dart:*)"
     ],
     "deny": [],
     "ask": [],
