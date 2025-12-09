@@ -46,3 +46,5 @@ app.*.map.json
 
 assets/cards/images
 assets/cards/models
+# FVM (ignore entire .fvm directory, track .fvmrc)
+.fvm/
