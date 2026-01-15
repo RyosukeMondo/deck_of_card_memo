@@ -24,6 +24,16 @@ dev_dependencies:
   build_runner: ^2.4.7
   mockito: ^5.4.4
   build_test: ^2.2.1
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  windows:
+    generate: true
+    image_path: "assets/icons/app_icon.png"
+    icon_size: 256
 
 flutter:
   uses-material-design: true
@@ -34,6 +44,7 @@ flutter:
     - assets/cards/names.csv
     - assets/ui/icons/
     - assets/ui/backgrounds/
+    - assets/icons/
 
   # Fonts
   # fonts:
