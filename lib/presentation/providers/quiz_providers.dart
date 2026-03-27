@@ -153,34 +153,46 @@ class QuizNotifier extends StateNotifier<QuizState> {
         for (int i = 0; i < count; i++) {
           final correctCard = allCards[random.nextInt(allCards.length)];
           final isRankQuestion = random.nextBool();
-          
+
           if (isRankQuestion) {
-            final matchingCards = CardDataService.getCardsByRank(correctCard.rank);
-            final wrongOptions = _getRandomCards(allCards, correctCard, 3);
-            
+            final matchingCards = CardDataService.getCardsByRank(correctCard.rank)
+                .where((c) => c.id != correctCard.id)
+                .toList();
+            final matchCard = matchingCards[random.nextInt(matchingCards.length)];
+            final wrongOptions = _getRandomCards(allCards, correctCard, 3)
+                .where((c) => c.rank != correctCard.rank)
+                .take(3)
+                .toList();
+
             questions.add(QuizQuestion(
               id: 'match_rank_${i}_${correctCard.id}',
               question: 'Which card has the same rank as ${correctCard.displayName}?',
               options: [
-                matchingCards[1].displayName, // Another card with same rank
+                matchCard.displayName,
                 ...wrongOptions.map((c) => c.displayName)
               ]..shuffle(),
-              correctAnswer: matchingCards[1].displayName,
+              correctAnswer: matchCard.displayName,
               relatedCard: correctCard,
               type: QuizQuestionType.multipleChoice,
             ));
           } else {
-            final matchingCards = CardDataService.getCardsBySuit(correctCard.suit);
-            final wrongOptions = _getRandomCards(allCards, correctCard, 3);
-            
+            final matchingCards = CardDataService.getCardsBySuit(correctCard.suit)
+                .where((c) => c.id != correctCard.id)
+                .toList();
+            final matchCard = matchingCards[random.nextInt(matchingCards.length)];
+            final wrongOptions = _getRandomCards(allCards, correctCard, 3)
+                .where((c) => c.suit != correctCard.suit)
+                .take(3)
+                .toList();
+
             questions.add(QuizQuestion(
               id: 'match_suit_${i}_${correctCard.id}',
               question: 'Which card has the same suit as ${correctCard.displayName}?',
               options: [
-                matchingCards[random.nextInt(matchingCards.length)].displayName,
+                matchCard.displayName,
                 ...wrongOptions.map((c) => c.displayName)
               ]..shuffle(),
-              correctAnswer: matchingCards[random.nextInt(matchingCards.length)].displayName,
+              correctAnswer: matchCard.displayName,
               relatedCard: correctCard,
               type: QuizQuestionType.multipleChoice,
             ));
