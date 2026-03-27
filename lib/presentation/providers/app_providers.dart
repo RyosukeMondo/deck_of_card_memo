@@ -42,7 +42,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   void clearError() {
-    state = state.copyWith(error: null);
+    state = state.copyWith(clearError: true);
   }
 
   void markAssetLoaded(String assetId) {

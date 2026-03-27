@@ -91,15 +91,17 @@ class AppState {
     this.deferredAssetsLoaded = const {},
   });
 
+  /// Use [clearError] = true to explicitly set error to null.
   AppState copyWith({
     bool? isLoading,
     String? error,
+    bool clearError = false,
     AppMode? mode,
     UserPreferences? preferences,
     Map<String, bool>? deferredAssetsLoaded,
   }) => AppState(
     isLoading: isLoading ?? this.isLoading,
-    error: error ?? this.error,
+    error: clearError ? null : (error ?? this.error),
     mode: mode ?? this.mode,
     preferences: preferences ?? this.preferences,
     deferredAssetsLoaded: deferredAssetsLoaded ?? this.deferredAssetsLoaded,
