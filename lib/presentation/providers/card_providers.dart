@@ -80,7 +80,6 @@ class ShuffledCardsNotifier extends StateNotifier<List<Card>?> {
   ShuffledCardsNotifier(this.ref) : super(null);
 
   void shuffle() {
-    final cards = ref.read(cardDataProvider);
     state = CardDataService.getShuffledCards();
     // Reset card index when shuffling
     ref.read(currentCardIndexProvider.notifier).shuffle();

@@ -1,11 +1,8 @@
 import 'dart:io' show Platform;
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show DefaultAssetBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_3d_controller/flutter_3d_controller.dart';
-import '../providers/app_providers.dart';
 import '../providers/card_providers.dart';
 import '../../data/models/app_state.dart';
 import '../../data/services/deferred_asset_loader.dart';

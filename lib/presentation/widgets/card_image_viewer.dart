@@ -263,53 +263,6 @@ class _CardImageViewerState extends State<CardImageViewer>
     );
   }
 
-  Widget _buildPlaceholderCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            widget.card.rank.code,
-            style: TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.getSuitColor(widget.card.suit.code),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.card.suit.symbol,
-            style: TextStyle(
-              fontSize: 32,
-              color: AppTheme.getSuitColor(widget.card.suit.code),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            widget.card.displayName,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 

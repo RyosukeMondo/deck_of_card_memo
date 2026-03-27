@@ -88,11 +88,6 @@ class NavigationControls extends ConsumerWidget {
     return viewMode == ViewMode.image ? Icons.threed_rotation : Icons.image;
   }
 
-  String _getViewModeLabel(WidgetRef ref) {
-    final viewMode = ref.watch(viewModeProvider);
-    return viewMode == ViewMode.image ? '3D' : '2D';
-  }
-
   void _showShuffleDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,

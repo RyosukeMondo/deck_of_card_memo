@@ -228,55 +228,6 @@ class _MainScreenState extends ConsumerState<MainScreen>
     );
   }
 
-  Widget _buildCardInfo(card) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: AppTheme.cardRadius,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                card.displayName,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                card.suit.symbol,
-                style: TextStyle(
-                  fontSize: 24,
-                  color: AppTheme.getSuitColor(card.suit.code),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildInfoChip('Suit', card.suit.name),
-              _buildInfoChip('Rank', card.rank.name),
-              _buildInfoChip('Value', card.rank.value.toString()),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCompactInfoChip(String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -302,39 +253,6 @@ class _MainScreenState extends ConsumerState<MainScreen>
             value,
             style: const TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.primaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoChip(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppTheme.primaryColor.withOpacity(0.3),
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.primaryColor,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: AppTheme.primaryColor,
             ),
